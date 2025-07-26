@@ -1,0 +1,63 @@
+﻿@page "/managebooks"
+@inject IBookService bookService
+
+<h2>Manage Books</h2>
+
+<div class="form-group mb-3">
+    <input type="text" class="form-control" placeholder="Search book by name..." @bind="searchTerm" @bind:event="oninput" />
+</div>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (filteredBooks.Count == 0)
+{
+    <div class="alert alert-info">No books found.</div>
+}
+else
+{
+    <div class="book-grid">
+        @foreach (var book in filteredBooks)
+        {
+            <BookCard Book="book" OnUpdated="HandleUpdate" />
+        }
+    </div>
+}
+
+@code {
+    private List<Book> allBooks = new();
+    private List<Book> filteredBooks = new();
+    private string searchTerm = string.Empty;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        var result = await bookService.GetBooksAsync();
+        allBooks = result ?? new List<Book>();
+        FilterBooks();
+        isLoading = false;
+    }
+
+    private void FilterBooks()
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm))
+        {
+            filteredBooks = allBooks;
+        }
+        else
+        {
+            filteredBooks = allBooks
+                .Where(b => b.Title.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    private async Task HandleUpdate()
+    {
+        var result = await bookService.GetBooksAsync();
+        allBooks = result ?? new List<Book>();
+        FilterBooks();
+    }
+}

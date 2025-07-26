@@ -1,0 +1,220 @@
+﻿@page "/addbook"
+@page "/addbook/{SetHashCode:int}"
+@inject NavigationManager NavigationManager
+@inject IBookService bookService
+@inject StateContainer stateContainer
+
+<div id="target">
+    <SfDialog Target="#target" Width="500px" @bind-Visible="Visibility" AllowPrerender="true" IsModal="true">
+        <DialogTemplates>
+            <Header> @PageTitle </Header>
+            <Content>
+                @if (Errors.Count > 0)
+                {
+                    <div class="alert alert-danger">
+                        <ul class="list-group">
+                            @foreach (var error in Errors)
+                            {
+                                <li><b>@error.Property</b>: @error.Message</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <EditForm Model="@book" OnValidSubmit="HandleSave">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <label>Title</label>
+                        <InputText class="form-control" @bind-Value="book.Title" />
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>Description</label>
+                        <InputText class="form-control" @bind-Value="book.Description" />
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>Author</label>
+                        <InputText class="form-control" @bind-Value="book.Author" />
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>Image Source</label>
+                        <InputRadioGroup @bind-Value="selectedImageInput" class="d-flex gap-3">
+                            <InputRadio Value="ImageInputType.Upload" /> Upload
+                            <InputRadio Value="ImageInputType.Link" /> Link
+                        </InputRadioGroup>
+                    </div>
+
+                    @if (selectedImageInput == ImageInputType.Upload)
+                    {
+                        <div class="form-group mt-2">
+                            <label>Upload Image</label>
+                            <InputFile OnChange="OnFileChange" />
+                        </div>
+                    }
+                    else if (selectedImageInput == ImageInputType.Link)
+                    {
+                        <div class="form-group mt-2">
+                            <label>Image URL</label>
+                            <InputText class="form-control" @bind-Value="book.Image" placeholder="https://example.com/image.jpg" />
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrWhiteSpace(book.Image))
+                    {
+                        <div class="form-group mt-2 text-center">
+                            <img src="@book.Image" width="80" height="50" alt="Book Image" />
+                        </div>
+                    }
+
+                    <div class="form-actions mt-4 d-flex justify-content-between">
+                        <button type="submit" class="btn">Save</button>
+                        <button type="button" class="btn border-0" @onclick="CloseDialog">Cancel</button>
+                    </div>
+                </EditForm>
+            </Content>
+        </DialogTemplates>
+    </SfDialog>
+</div>
+
+<MakeToast ToastContent="@ToastContent" Title="@Title" Display="@Display" />
+
+<style>
+    #target {
+        height: auto;
+        padding: 2rem;
+    }
+
+    .sf-dialog .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .sf-dialog label {
+        font-size: 1.1rem;
+        color: var(--header-color);
+    }
+
+    .sf-dialog img {
+        max-height: 120px;
+        border-radius: 6px;
+        box-shadow: 0 2px 8px var(--shadow-light);
+    }
+</style>
+
+
+
+@code {
+    [Parameter] public int SetHashCode { get; set; }
+    private string PageTitle = string.Empty;
+    private string ToastContent = string.Empty;
+    private string Title = string.Empty;
+    private bool Display;
+
+    public Book book { get; set; } = new();
+    private bool Visibility { get; set; } = true;
+
+    public List<Error> Errors { get; set; } = new();
+
+    private ImageInputType selectedImageInput = ImageInputType.Upload;
+
+    private void CloseDialog()
+    {
+        Visibility = false;
+        NavigationManager.NavigateTo("/");
+    }
+
+    private async Task HandleSave()
+    {
+        if (ValidateModel(book))
+        {
+            return;
+        }
+
+        var result = await bookService.ManageBookAsync(book);
+        CreateToast(result.Success, result.Message);
+        Display = true;
+
+        if (result.Success)
+        {
+            book = new Book();
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
+    private bool ValidateModel(Book bookError)
+    {
+        Errors.Clear();
+
+        if (string.IsNullOrWhiteSpace(bookError.Title))
+            Errors.Add(new Error { Property = "Title", Message = "Title cannot be empty." });
+
+        if (string.IsNullOrWhiteSpace(bookError.Author))
+            Errors.Add(new Error { Property = "Author", Message = "Author cannot be empty." });
+
+        if (string.IsNullOrWhiteSpace(bookError.Description))
+            Errors.Add(new Error { Property = "Description", Message = "Description cannot be empty." });
+
+        if (selectedImageInput == ImageInputType.Upload && string.IsNullOrWhiteSpace(bookError.Image))
+            Errors.Add(new Error { Property = "Image", Message = "You must upload an image." });
+
+        if (selectedImageInput == ImageInputType.Link && string.IsNullOrWhiteSpace(bookError.Image))
+            Errors.Add(new Error { Property = "Image", Message = "Image URL cannot be empty." });
+
+        return Errors.Count > 0;
+    }
+
+    public class Error
+    {
+        public string Property { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+    }
+
+    private void CreateToast(bool status, string message)
+    {
+        ToastContent = message;
+        Title = status ? "Success" : "Alert";
+    }
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        string format = e.File.ContentType switch
+        {
+            "image/png" => "image/png",
+            "image/jpeg" => "image/jpeg",
+            "image/jpg" => "image/jpg",
+            _ => "image/jpeg"
+        };
+
+        var resized = await e.File.RequestImageFileAsync(format, 300, 300);
+        var buffer = new byte[resized.Size];
+        await resized.OpenReadStream().ReadAsync(buffer);
+        book.Image = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+    }
+
+    protected override void OnInitialized()
+    {
+        PageTitle = "Add Book Data to Database";
+        if (SetHashCode == 0)
+            book = new Book();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (SetHashCode != 0)
+        {
+            PageTitle = "Update Book Data in Database";
+            book = (Book)stateContainer.ObjectTunnel[SetHashCode];
+        }
+
+        return base.OnParametersSetAsync();
+    }
+
+    public enum ImageInputType
+    {
+        Upload,
+        Link
+    }
+}

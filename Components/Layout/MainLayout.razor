@@ -1,0 +1,29 @@
+﻿@inherits LayoutComponentBase
+@inject ThemeService ThemeService
+@inject IJSRuntime jsRuntime
+
+<div class="layout-root">
+    <header class="navbar">
+        <div class="navbar-left">
+            <h1 class="app-title">📚 BookTracker</h1>
+        </div>
+        <nav class="navbar-right">
+            <NavLink href="/" class="nav-item" activeClass="active">Home</NavLink>
+            <NavLink href="/addbook" class="nav-item" activeClass="active">Add Book</NavLink>
+            <NavLink href="/managebooks" class="nav-item" activeClass="active">Manage Books</NavLink>
+
+        </nav>
+    </header>
+
+    <main class="main-content">
+        @Body
+    </main>
+</div>
+
+@code {
+    private async Task ToggleTheme()
+    {
+        await ThemeService.ToggleThemeAsync();
+    }
+
+}

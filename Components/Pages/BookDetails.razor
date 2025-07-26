@@ -1,0 +1,47 @@
+﻿@page "/bookdetails/{Id:int}"
+@inject IBookService bookService
+@inject NavigationManager NavigationManager
+@inject StateContainer stateContainer
+
+<h2>Book Details</h2>
+
+@if (isLoading)
+{
+    <LoadingSpinner />
+}
+else if (book == null)
+{
+    <div class="alert alert-danger">Book not found.</div>
+}
+else
+{
+    <div class="book-details-page">
+        <img src="@book.Image" alt="@book.Title" class="book-details-img" />
+        <div class="book-details-content">
+            <h3>@book.Title</h3>
+            <p><strong>Author:</strong> @book.Author</p>
+            <p><strong>Description:</strong></p>
+            <p>@book.Description</p>
+
+            <BookActions Book="book" OnUpdated="LoadBook" />
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private Book? book;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBook();
+    }
+
+    private async Task LoadBook()
+    {
+        isLoading = true;
+        book = await bookService.GetBookByIdAsync(Id);
+        isLoading = false;
+    }
+}

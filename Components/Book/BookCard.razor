@@ -1,0 +1,32 @@
+﻿@using BookTracker.Models
+@inject NavigationManager NavigationManager
+
+<div class="book-card fade-in" @onclick="NavigateToDetails">
+    <img src="@Book.Image" alt="@Book.Title" class="book-img" />
+    <div class="book-details">
+        <h4 class="book-title">@Book.Title</h4>
+        <p class="book-author">by <strong>@Book.Author</strong></p>
+        <p class="book-desc desc-toggle @(IsExpanded ? "expanded" : "")"
+           @onclick:stopPropagation @onclick="ToggleDescription">
+            @Book.Description
+        </p>
+        <BookActions Book="Book" OnUpdated="OnUpdated" />
+    </div>
+</div>
+
+@code {
+    [Parameter] public Book Book { get; set; } = default!;
+    [Parameter] public EventCallback OnUpdated { get; set; }
+
+    private bool IsExpanded = false;
+
+    private void ToggleDescription()
+    {
+        IsExpanded = !IsExpanded;
+    }
+
+    private void NavigateToDetails()
+    {
+        NavigationManager.NavigateTo($"/bookdetails/{Book.Id}");
+    }
+}
