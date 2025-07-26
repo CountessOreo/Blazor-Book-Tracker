@@ -226,12 +226,13 @@ button, .btn {
 
     .book-actions .text-danger {
         color: #dc3545;
-        .form-group {
-    margin-bottom: 1.75rem;
-    display: flex;
-    flex-direction: column;
-}
+    }
 
+    .form-group {
+        margin-bottom: 1.75rem;
+        display: flex;
+        flex-direction: column;
+    }
 
 .text-info {
     color: #17a2b8 !important;
@@ -334,7 +335,7 @@ textarea.form-control {
 }
 
 .book-title {
-    font-size: 1.2rem;
+    font-size: 1.0rem;
     font-weight: 600;
 }
 
@@ -357,34 +358,69 @@ textarea.form-control {
         max-height: none;
     }
 
-/* Book details page */
-.book-details-page {
+.book-details-wrapper {
+    padding: 1rem;
+    background-color: var(--bg-paper);
     display: flex;
+    justify-content: center;
+}
+
+.book-details-flex {
+    display: flex;
+    flex-direction: row;
     gap: 2rem;
-    padding: 2rem;
+    background-color: var(--bg-white);
+    padding: 12rem;
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px var(--shadow-medium);
 }
 
-.book-details-img {
-    width: 300px;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 8px;
+.book-left {
+    flex: 0 0 auto;
 }
 
-.book-details-content {
+.book-right {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-.e-hide .e-grid .e-headercell span[id*="_header_table"] {
-    display: none !important;
+.book-cover {
+    width: 300px;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 12px var(--shadow-medium);
+    padding-right: 10px
 }
 
-/* brute force removal for rogue header text */
-.e-grid .e-headercell span[id*="_header_table"],
-.e-grid .e-headercell:has(span[id*="_header_table"]),
-.e-hide {
-    display: none !important;
-    visibility: hidden !important;
-    font-size: 0 !important;
-    color: transparent !important;
+.book-title {
+    font-size: 1.5rem;
+    color: var(--header-color);
+    margin: 0;
 }
+
+.book-author {
+    font-size: 1.2rem;
+    color: #80553d;
+    margin-top: -0.4rem;
+}
+
+.description-box {
+    background-color: var(--bg-grid);
+    border-left: 4px solid var(--accent);
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+.back-button {
+    align-self: flex-start;
+    margin-top: 1rem;
+}
+
+

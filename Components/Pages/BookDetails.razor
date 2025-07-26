@@ -3,30 +3,46 @@
 @inject NavigationManager NavigationManager
 @inject StateContainer stateContainer
 
-<h2>Book Details</h2>
-
-@if (isLoading)
-{
-    <LoadingSpinner />
-}
-else if (book == null)
-{
-    <div class="alert alert-danger">Book not found.</div>
-}
-else
-{
-    <div class="book-details-page">
-        <img src="@book.Image" alt="@book.Title" class="book-details-img" />
-        <div class="book-details-content">
-            <h3>@book.Title</h3>
-            <p><strong>Author:</strong> @book.Author</p>
-            <p><strong>Description:</strong></p>
-            <p>@book.Description</p>
-
-            <BookActions Book="book" OnUpdated="LoadBook" />
+<main class="book-details-wrapper">
+    @if (isLoading)
+    {
+        <div class="spinner-wrapper">
+            <LoadingSpinner />
         </div>
-    </div>
-}
+    }
+    else if (book == null)
+    {
+        <div class="alert alert-danger modern-alert">
+            <strong>Oops!</strong> Book not found.
+        </div>
+    }
+    else
+    {
+        <div class="book-details-flex">
+            <div class="book-left">
+                <img src="@book.Image" alt="@book.Title" class="book-cover" />
+            </div>
+
+            <div class="book-right">
+                <h1 class="book-title">@book.Title</h1>
+                <p class="book-author">by <strong>@book.Author</strong></p>
+
+                <div class="description-box">
+                    <h4>Description</h4>
+                    <p>@book.Description</p>
+                </div>
+
+                <div class="book-actions-section">
+                    <BookActions Book="book" OnUpdated="LoadBook" />
+                </div>
+
+                <a class="btn back-button" @onclick="@(() => NavigationManager.NavigateTo("/"))">
+                    ← Back to List
+                </a>
+            </div>
+        </div>
+    }
+</main>
 
 @code {
     [Parameter] public int Id { get; set; }
