@@ -61,7 +61,7 @@ dotnet run
 
 
 ## Folder Structure
-
+```bash
 BlazorBookTracker/
 ├── wwwroot/              # Static assets
 ├── Pages/                # Razor pages (e.g., BookList, AddBook)
@@ -69,4 +69,4 @@ BlazorBookTracker/
 ├── Models/               # Data models (Book, Category, etc.)
 ├── Services/             # Business logic and API calls
 └── Data/                 # EF Core DB context and migrations
-
+```
