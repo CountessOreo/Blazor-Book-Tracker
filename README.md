@@ -56,7 +56,7 @@ dotnet run
 ### Search, Update and Delete
 <img width="1879" height="731" alt="ManageBooks" src="https://github.com/user-attachments/assets/32829c78-a263-4d94-9f92-6ac5969ef485" />
 
-## Book Details
+### Book Details
 <img width="1900" height="885" alt="BookDetails" src="https://github.com/user-attachments/assets/1b7a5c0b-18dd-45e2-afda-ce302a0e0c15" />
 
 
